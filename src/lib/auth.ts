@@ -15,10 +15,14 @@ import { auth } from "./firebase";
 import { useEffect, useState } from "react";
 
 export const signInWithGoogle = async () => {
+    if (!auth) {
+        console.error("Firebase Auth not initialized. Check your environment variables.");
+        throw new Error("Authentication service not available");
+    }
     const provider = new GoogleAuthProvider();
     console.log("Attempting Google Sign In...");
     try {
-        const result = await signInWithPopup(auth as Auth, provider);
+        const result = await signInWithPopup(auth, provider);
         return result.user;
     } catch (error) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,7 +30,7 @@ export const signInWithGoogle = async () => {
         if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
             console.warn("Popup blocked/closed, falling back to redirect...");
             try {
-                await signInWithRedirect(auth as Auth, provider);
+                await signInWithRedirect(auth, provider);
                 return null;
             } catch (redirectError) {
                 console.error("Error signing in with Redirect", redirectError);
@@ -39,8 +43,9 @@ export const signInWithGoogle = async () => {
 };
 
 export const signUpWithEmail = async (email: string, pass: string) => {
+    if (!auth) throw new Error("Authentication service not available");
     try {
-        const result = await createUserWithEmailAndPassword(auth as Auth, email, pass);
+        const result = await createUserWithEmailAndPassword(auth, email, pass);
         return result.user;
     } catch (error) {
         console.error("Error signing up", error);
@@ -49,8 +54,9 @@ export const signUpWithEmail = async (email: string, pass: string) => {
 };
 
 export const signInWithEmail = async (email: string, pass: string) => {
+    if (!auth) throw new Error("Authentication service not available");
     try {
-        const result = await signInWithEmailAndPassword(auth as Auth, email, pass);
+        const result = await signInWithEmailAndPassword(auth, email, pass);
         return result.user;
     } catch (error) {
         console.error("Error signing in with email", error);
@@ -59,8 +65,9 @@ export const signInWithEmail = async (email: string, pass: string) => {
 };
 
 export const logOut = async () => {
+    if (!auth) return;
     try {
-        await signOut(auth as Auth);
+        await signOut(auth);
     } catch (error) {
         console.error("Error signing out", error);
         throw error;
@@ -72,13 +79,13 @@ export const useAuth = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!auth || !auth.onAuthStateChanged) {
+        if (!auth) {
             console.warn("Auth not initialized, skipping listener");
             setLoading(false);
             return;
         }
 
-        const unsubscribe = onAuthStateChanged(auth as Auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
             setUser(user);
             setLoading(false);
         });

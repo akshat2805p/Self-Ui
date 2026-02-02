@@ -44,39 +44,7 @@ try {
 }
 
 // Helper to prevent crashes if auth/db are accessed when not initialized
-const createMockAuth = () => {
-    return {
-        currentUser: null,
-        onAuthStateChanged: () => () => { },
-        signInWithPopup: () => Promise.reject(new Error("Firebase not initialized")),
-        // Add other methods if needed, casting to Auth
-    } as unknown as Auth;
-}
-
-const createMockFirestore = () => {
-    return {
-        collection: () => {
-            console.warn("Firestore not initialized. Using mock.");
-            return {
-                doc: () => ({
-                    get: () => Promise.reject(new Error("Firestore not initialized")),
-                    set: () => Promise.reject(new Error("Firestore not initialized")),
-                    update: () => Promise.reject(new Error("Firestore not initialized")),
-                    delete: () => Promise.reject(new Error("Firestore not initialized")),
-                }),
-                add: () => Promise.reject(new Error("Firestore not initialized")),
-            };
-        },
-        // Add other Firestore methods if needed, casting to Firestore
-    } as unknown as Firestore;
-}
-
-if (!auth) {
-    auth = createMockAuth();
-}
-
-if (!db) {
-    db = createMockFirestore();
-}
+// We export them as null/undefined if initialization failed.
+// Consumers (like auth.ts) must check for existence.
 
 export { app, auth, db };
