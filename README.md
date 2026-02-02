@@ -2,6 +2,12 @@
 
 SelfUi is a generative UI development platform that acts as a self-evolving canvas. It allows developers to describe interfaces in plain English and instantly receive production-ready code (HTML/Tailwind or React/JSX).
 
+<div align="center">
+  <a href="https://self-ui.vercel.app">
+    <img src="https://img.shields.io/badge/Live_Demo-Visit_App-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+  </a>
+</div>
+
 <p align="center">
   <img src="public/images/showcase-light.png" alt="SelfUi Landing Page" width="100%" />
 </p>
