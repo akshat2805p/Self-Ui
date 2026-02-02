@@ -8,7 +8,8 @@ import {
     onAuthStateChanged,
     User,
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    Auth
 } from "firebase/auth";
 import { auth } from "./firebase";
 import { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ export const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     console.log("Attempting Google Sign In...");
     try {
-        const result = await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth as Auth, provider);
         return result.user;
     } catch (error) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,7 +26,7 @@ export const signInWithGoogle = async () => {
         if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
             console.warn("Popup blocked/closed, falling back to redirect...");
             try {
-                await signInWithRedirect(auth, provider);
+                await signInWithRedirect(auth as Auth, provider);
                 return null;
             } catch (redirectError) {
                 console.error("Error signing in with Redirect", redirectError);
@@ -39,7 +40,7 @@ export const signInWithGoogle = async () => {
 
 export const signUpWithEmail = async (email: string, pass: string) => {
     try {
-        const result = await createUserWithEmailAndPassword(auth, email, pass);
+        const result = await createUserWithEmailAndPassword(auth as Auth, email, pass);
         return result.user;
     } catch (error) {
         console.error("Error signing up", error);
@@ -49,7 +50,7 @@ export const signUpWithEmail = async (email: string, pass: string) => {
 
 export const signInWithEmail = async (email: string, pass: string) => {
     try {
-        const result = await signInWithEmailAndPassword(auth, email, pass);
+        const result = await signInWithEmailAndPassword(auth as Auth, email, pass);
         return result.user;
     } catch (error) {
         console.error("Error signing in with email", error);
@@ -59,7 +60,7 @@ export const signInWithEmail = async (email: string, pass: string) => {
 
 export const logOut = async () => {
     try {
-        await signOut(auth);
+        await signOut(auth as Auth);
     } catch (error) {
         console.error("Error signing out", error);
         throw error;
@@ -71,7 +72,13 @@ export const useAuth = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!auth || !auth.onAuthStateChanged) {
+            console.warn("Auth not initialized, skipping listener");
+            setLoading(false);
+            return;
+        }
+
+        const unsubscribe = onAuthStateChanged(auth as Auth, (user) => {
             setUser(user);
             setLoading(false);
         });

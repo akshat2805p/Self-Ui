@@ -17,8 +17,8 @@ const isClient = typeof window !== "undefined";
 const hasKeys = !!firebaseConfig.apiKey;
 
 let app;
-let auth: Auth;
-let db: Firestore;
+let auth: Auth | undefined;
+let db: Firestore | undefined;
 
 try {
     if (!getApps().length) {
@@ -43,10 +43,40 @@ try {
     console.error("Firebase Initialization Error:", error);
 }
 
-// Export as potentially undefined or with a getter check to be safer?
-// For existing code compatibility, we export them directly, but might need to be careful.
-// A better pattern for Next.js is often to export a function to getAuth() safely.
-// However, the current usage is likely `import { auth } from '@/lib/firebase'`.
-// If `auth` is undefined, accessing `auth.currentUser` will throw.
+// Helper to prevent crashes if auth/db are accessed when not initialized
+const createMockAuth = () => {
+    return {
+        currentUser: null,
+        onAuthStateChanged: () => () => { },
+        signInWithPopup: () => Promise.reject(new Error("Firebase not initialized")),
+        // Add other methods if needed, casting to Auth
+    } as unknown as Auth;
+}
+
+const createMockFirestore = () => {
+    return {
+        collection: () => {
+            console.warn("Firestore not initialized. Using mock.");
+            return {
+                doc: () => ({
+                    get: () => Promise.reject(new Error("Firestore not initialized")),
+                    set: () => Promise.reject(new Error("Firestore not initialized")),
+                    update: () => Promise.reject(new Error("Firestore not initialized")),
+                    delete: () => Promise.reject(new Error("Firestore not initialized")),
+                }),
+                add: () => Promise.reject(new Error("Firestore not initialized")),
+            };
+        },
+        // Add other Firestore methods if needed, casting to Firestore
+    } as unknown as Firestore;
+}
+
+if (!auth) {
+    auth = createMockAuth();
+}
+
+if (!db) {
+    db = createMockFirestore();
+}
 
 export { app, auth, db };
