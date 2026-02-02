@@ -48,9 +48,16 @@ To deploy this project to the web using Vercel:
     -   Click "Add New..." -> "Project".
     -   Select your repository.
 3.  **Configure Environment Variables**:
-    -   In the Vercel project settings during import, add the Environment Variable:
-        -   `GEMINI_API_KEY`: Your actual Google Gemini API Key.
-    -   (Optional) `NEXT_PUBLIC_GEMINI_API_KEY`: Same value, if you want it accessible client-side as a fallback.
+    -   In the Vercel project settings during import, add the following Environment Variables (copy from `.env.local`):
+        -   `NEXT_PUBLIC_FIREBASE_API_KEY`
+        -   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+        -   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+        -   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+        -   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+        -   `NEXT_PUBLIC_FIREBASE_APP_ID`
+        -   `NEXT_PUBLIC_GEMINI_API_KEY`
+        -   `GEMINI_API_KEY`
+    -   These are required for Authentication to work.
 4.  **Deploy**: Click "Deploy".
     -   Once deployed, you will get a URL like `https://self-ui.vercel.app`.
 
